@@ -13,9 +13,6 @@ const App: React.FC = () => {
   const [focus, setFocus] = React.useState<number>(0)
   const [shouldFocus, setShouldFocus] = React.useState<boolean>(false)
 
-  // refs
-  const scrollViewRef = React.useRef<ScrollView>(null)
-
   // actions
 
   const onChange = React.useCallback(
@@ -59,7 +56,7 @@ const App: React.FC = () => {
       <StatusBar barStyle="light-content" />
       <SafeAreaView style={styles.container}>
         <KeyboardAvoidingView style={styles.view} behavior="padding" enabled>
-          <ScrollView ref={scrollViewRef}>
+          <ScrollView>
             {goals.map((goal, index) => (
               <Goal
                 key={goal.id}
