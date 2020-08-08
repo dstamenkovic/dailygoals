@@ -5,19 +5,20 @@ import { dark } from './colors'
 import { IGoal } from './types'
 import Goal from './Goal'
 
+const createID = (): string => `${Math.random().toString(36).substring(7)}-${new Date().getTime()}`
+
 const App: React.FC = () => {
   // state
-  const [goals, setGoals] = React.useState<IGoal[]>([
-    { id: `${Math.random().toString(36).substring(7)}`, text: '', checked: false },
-  ])
+  const [goals, setGoals] = React.useState<IGoal[]>([{ id: createID(), text: '', checked: false }])
   const [focus, setFocus] = React.useState<number>(0)
   const [shouldFocus, setShouldFocus] = React.useState<boolean>(false)
 
   // actions
 
   const onChange = React.useCallback(
-    <F extends Exclude<keyof IGoal, 'id'>, V extends IGoal[F]>(index: number, field: F, value: V): void => {
+    <F extends Exclude<keyof IGoal, 'id'>, V extends IGoal[F]>(id: string, field: F, value: V): void => {
       setGoals((currentState) => {
+        const index = currentState.findIndex((g) => g.id === id)
         const updateGoal = currentState[index]
         updateGoal[field] = value
 
@@ -27,27 +28,33 @@ const App: React.FC = () => {
     []
   )
 
-  const addItem = React.useCallback((index: number): void => {
+  const addItem = React.useCallback((id: string): void => {
     setGoals((currentState) => {
-      const newItem: IGoal = { id: `${Math.random().toString(36).substring(7)}`, text: '', checked: false }
+      const index = currentState.findIndex((g) => g.id === id)
+      const newItem: IGoal = { id: createID(), text: '', checked: false }
       const newState = [...currentState]
       newState.splice(index + 1, 0, newItem)
+
+      setFocus(index + 1)
+
       return newState
     })
-    setFocus(index + 1)
     setShouldFocus(true)
   }, [])
 
-  const removeItem = React.useCallback((index: number): void => {
+  const removeItem = React.useCallback((id: string): void => {
     setGoals((currentState) => {
       if (currentState.length === 1) {
         return currentState
       }
+      const index = currentState.findIndex((g) => g.id === id)
       const newState = [...currentState]
       newState.splice(index, 1)
+
+      setFocus(index - 1)
+
       return newState
     })
-    setFocus(index - 1)
     setShouldFocus(true)
   }, [])
 
@@ -60,7 +67,6 @@ const App: React.FC = () => {
             {goals.map((goal, index) => (
               <Goal
                 key={goal.id}
-                index={index}
                 goal={goal}
                 onChange={onChange}
                 addItem={addItem}

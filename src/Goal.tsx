@@ -6,21 +6,20 @@ import { primary, light } from './colors'
 import { IGoal } from './types'
 
 interface IProps {
-  index: number
   goal: IGoal
-  onChange: <F extends Exclude<keyof IGoal, 'id'>, V extends IGoal[F]>(index: number, field: F, value: V) => void
-  addItem: (index: number) => void
-  removeItem: (index: number) => void
+  onChange: <F extends Exclude<keyof IGoal, 'id'>, V extends IGoal[F]>(id: string, field: F, value: V) => void
+  addItem: (id: string) => void
+  removeItem: (id: string) => void
   focusComponent: boolean
   setShouldFocus: (shouldFocus: boolean) => void
 }
 
-const Goal: React.SFC<IProps> = ({ index, goal, onChange, addItem, removeItem, focusComponent, setShouldFocus }) => {
+const Goal: React.SFC<IProps> = ({ goal, onChange, addItem, removeItem, focusComponent, setShouldFocus }) => {
   const inputRef = React.useRef<TextInput>(null)
 
   const onKeyPress = (event: NativeSyntheticEvent<TextInputKeyPressEventData>): void => {
     if (event.nativeEvent.key === 'Backspace' && !goal.text) {
-      removeItem(index)
+      removeItem(goal.id)
     }
   }
 
@@ -37,18 +36,18 @@ const Goal: React.SFC<IProps> = ({ index, goal, onChange, addItem, removeItem, f
         value={goal.checked}
         onCheckColor={primary}
         onTintColor={light}
-        onValueChange={(value: boolean) => onChange(index, 'checked', value)}
+        onValueChange={(value: boolean) => onChange(goal.id, 'checked', value)}
       />
       <TextInput
         testID="textinput"
         ref={inputRef}
         style={!goal.checked ? styles.text : { ...styles.text, ...{ color: primary } }}
         value={goal.text}
-        onChangeText={(text) => onChange(index, 'text', text)}
+        onChangeText={(text) => onChange(goal.id, 'text', text)}
         multiline
         scrollEnabled={false}
         blurOnSubmit
-        onSubmitEditing={() => addItem(index)}
+        onSubmitEditing={() => addItem(goal.id)}
         onKeyPress={onKeyPress}
       />
     </View>
