@@ -1,6 +1,8 @@
-# dailygoals - WIP
+# dailygoals
 
-### simple to-do list RN app
+### Simple to-do list RN app
+
+![screen](./screenshot.png)
 
 ## Setup
 
