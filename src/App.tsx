@@ -1,21 +1,24 @@
-import React from 'react'
+import React, { FC, useState, useCallback, useEffect } from 'react'
 import { StyleSheet, StatusBar, SafeAreaView, ScrollView, KeyboardAvoidingView } from 'react-native'
+import isEqual from 'lodash/isEqual'
 
 import { dark } from './colors'
 import { IGoal } from './types'
 import Goal from './Goal'
+import { saveGoals, getGoals } from './asyncStorage'
+import useDebounce from './useDebounce'
 
 const createID = (): string => `${Math.random().toString(36).substring(7)}-${new Date().getTime()}`
 
-const App: React.FC = () => {
+const App: FC = () => {
   // state
-  const [goals, setGoals] = React.useState<IGoal[]>([{ id: createID(), text: '', checked: false }])
-  const [focus, setFocus] = React.useState<number>(0)
-  const [shouldFocus, setShouldFocus] = React.useState<boolean>(false)
+  const [goals, setGoals] = useState<IGoal[]>([])
+  const [focus, setFocus] = useState<number>(0)
+  const [shouldFocus, setShouldFocus] = useState<boolean>(false)
 
   // actions
 
-  const onChange = React.useCallback(
+  const onChange = useCallback(
     <F extends Exclude<keyof IGoal, 'id'>, V extends IGoal[F]>(id: string, field: F, value: V): void => {
       setGoals((currentState) => {
         const index = currentState.findIndex((g) => g.id === id)
@@ -28,7 +31,7 @@ const App: React.FC = () => {
     []
   )
 
-  const addItem = React.useCallback((id: string): void => {
+  const addItem = useCallback((id: string): void => {
     setGoals((currentState) => {
       const index = currentState.findIndex((g) => g.id === id)
       const newItem: IGoal = { id: createID(), text: '', checked: false }
@@ -42,7 +45,7 @@ const App: React.FC = () => {
     setShouldFocus(true)
   }, [])
 
-  const removeItem = React.useCallback((id: string): void => {
+  const removeItem = useCallback((id: string): void => {
     setGoals((currentState) => {
       if (currentState.length === 1) {
         return currentState
@@ -57,6 +60,31 @@ const App: React.FC = () => {
     })
     setShouldFocus(true)
   }, [])
+
+  // effects
+
+  useEffect(() => {
+    const getGoalsFromStorage = async (): Promise<void> => {
+      const goalsAsyncStorage = await getGoals()
+      setGoals(goalsAsyncStorage || [{ id: createID(), text: '', checked: false }])
+    }
+
+    getGoalsFromStorage()
+  }, [])
+
+  const debouncedGoals = useDebounce(goals, 1500)
+
+  useEffect(() => {
+    const saveToLocalStorage = async (): Promise<void> => {
+      const savedGoals = await getGoals()
+      if (!isEqual(savedGoals, debouncedGoals)) {
+        await saveGoals(debouncedGoals)
+      }
+    }
+    if (debouncedGoals.length) {
+      saveToLocalStorage()
+    }
+  }, [debouncedGoals])
 
   return (
     <>

@@ -9,7 +9,6 @@ describe('Goal Component Tests', () => {
     const goal = { id: 'randomId', checked: true, text: 'Hello' }
     const { getByDisplayValue, getByTestId } = render(
       <Goal
-        index={0}
         goal={goal}
         onChange={jest.fn}
         addItem={jest.fn}

@@ -49,6 +49,7 @@ const Goal: React.SFC<IProps> = ({ goal, onChange, addItem, removeItem, focusCom
         blurOnSubmit
         onSubmitEditing={() => addItem(goal.id)}
         onKeyPress={onKeyPress}
+        returnKeyType="next"
       />
     </View>
   )
