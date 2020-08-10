@@ -2,7 +2,6 @@
 
 ### Simple to-do list RN app
 
-![screen](./screenshot.png)
 
 ## Setup
 
